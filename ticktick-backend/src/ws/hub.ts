@@ -1,4 +1,5 @@
 import { WebSocketServer, WebSocket } from 'ws'
+import type { IncomingMessage } from 'http'
 import jwt from 'jsonwebtoken'
 
 type ClientMeta = { userId: number; deviceId?: string }
@@ -8,12 +9,13 @@ const userSockets = new Map<number, Set<AuthedSocket>>()
 
 export const WsHub = {
   wss: null as WebSocketServer | null,
+  heartbeatTimer: null as NodeJS.Timeout | null,
 
   init(server: any) {
     const wss = new WebSocketServer({ server, path: '/ws' })
     this.wss = wss
 
-    wss.on('connection', (ws: AuthedSocket, req) => {
+    wss.on('connection', (ws: AuthedSocket, req: IncomingMessage) => {
       try {
         const url = new URL(req.url || '', `http://${req.headers.host}`)
         const token = url.searchParams.get('token') || ''
@@ -38,15 +40,20 @@ export const WsHub = {
     })
 
     const interval = setInterval(() => {
-      wss.clients.forEach((ws) => {
+      wss.clients.forEach((ws: WebSocket) => {
         const s = ws as AuthedSocket
         if (!s.isAlive) return s.terminate()
         s.isAlive = false
         s.ping()
       })
     }, 30000)
+    this.heartbeatTimer = interval
 
-    wss.on('close', () => clearInterval(interval))
+    wss.on('close', () => {
+      clearInterval(interval)
+      this.heartbeatTimer = null
+      userSockets.clear()
+    })
   },
 
   broadcastToUser(userId: number, payload: any) {
@@ -55,6 +62,21 @@ export const WsHub = {
     const data = JSON.stringify(payload)
     sockets.forEach((s) => {
       if (s.readyState === WebSocket.OPEN) s.send(data)
+    })
+  },
+
+  async shutdown() {
+    const wss = this.wss
+    this.wss = null
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer)
+      this.heartbeatTimer = null
+    }
+    userSockets.clear()
+
+    if (!wss) return
+    await new Promise<void>((resolve) => {
+      wss.close(() => resolve())
     })
   }
 }

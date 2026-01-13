@@ -1,37 +1,44 @@
-import knex, { Knex } from 'knex'
-import path from 'path'
-import dotenv from 'dotenv'
+import knex, { Knex } from "knex";
+import path from "path";
+import dotenv from "dotenv";
 
-dotenv.config()
+dotenv.config();
 
-const client = (process.env.DB_CLIENT || 'sqlite3').toLowerCase()
-const isMySQL = client === 'mysql2' || client === 'mysql'
+const client = (process.env.DB_CLIENT || "sqlite3").toLowerCase();
+const isMySQL = client === "mysql2" || client === "mysql";
+const isTest = process.env.NODE_ENV === "test";
 
 const config: Knex.Config = {
-  client: isMySQL ? 'mysql2' : 'sqlite3',
+  client: isMySQL ? "mysql2" : "sqlite3",
   connection: isMySQL
     ? {
-        host: process.env.DB_HOST || process.env.MYSQL_HOST || '127.0.0.1',
+        host: process.env.DB_HOST || process.env.MYSQL_HOST || "127.0.0.1",
         port: Number(process.env.DB_PORT || process.env.MYSQL_PORT || 3306),
-        user: process.env.DB_USER || process.env.MYSQL_USER || 'root',
-        password: process.env.DB_PASSWORD || process.env.MYSQL_PASSWORD || '',
-        database: process.env.DB_NAME || process.env.MYSQL_DATABASE || 'ticktick'
+        user: process.env.DB_USER || process.env.MYSQL_USER || "root",
+        password: process.env.DB_PASSWORD || process.env.MYSQL_PASSWORD || "",
+        database:
+          process.env.DB_NAME || process.env.MYSQL_DATABASE || "ticktick",
       }
     : {
         filename:
           process.env.SQLITE_FILE ||
           process.env.SQLITE_PATH ||
-          path.resolve(process.cwd(), 'dev.sqlite3')
+          path.resolve(process.cwd(), "dev.sqlite3"),
       },
   useNullAsDefault: !isMySQL,
-  pool: { min: 0, max: 10 }
-}
+  pool: {
+    min: 0,
+    max: isTest ? 5 : 10, // 测试环境使用更小的连接池
+    idleTimeoutMillis: 30000,
+    acquireTimeoutMillis: 60000,
+  },
+};
 
-export const db = knex(config)
+export const db = knex(config);
 
 export function unwrapInsertedId(ret: any): number {
-  if (Array.isArray(ret) && typeof ret[0] === 'number') return ret[0]
-  if (Array.isArray(ret) && ret[0]?.insertId) return Number(ret[0].insertId)
-  if (ret?.insertId) return Number(ret.insertId)
-  return Number(ret)
+  if (Array.isArray(ret) && typeof ret[0] === "number") return ret[0];
+  if (Array.isArray(ret) && ret[0]?.insertId) return Number(ret[0].insertId);
+  if (ret?.insertId) return Number(ret.insertId);
+  return Number(ret);
 }

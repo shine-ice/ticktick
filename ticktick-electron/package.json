@@ -1,12 +1,34 @@
 {
   "name": "ticktick-electron",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"npm:dev:frontend\" \"npm:dev:backend\" \"npm:dev:electron\"",
+    "dev:frontend": "cd ../ticktick-frontend && npm run dev",
+    "dev:backend": "cd ../ticktick-backend && npm run dev",
+    "dev:electron": "wait-on http://localhost:5173 && electron .",
+    "build": "cd ../ticktick-frontend && npm run build && cd ../ticktick-electron && electron-builder",
+    "package": "electron-builder --dir"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "electron": "^30.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "electron-builder": "^25.1.8",
+    "wait-on": "^8.0.2"
+  },
+  "build": {
+    "appId": "com.example.ticktick",
+    "files": [
+      "main.js",
+      "preload.js",
+      "dist/**",
+      "assets/**"
+    ]
+  }
 }

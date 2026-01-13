@@ -1,85 +1,56 @@
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <el-container class="app-shell">
+    <el-aside width="220px" class="aside">
+      <div class="brand">TickTick</div>
+      <el-menu :default-active="$route.path" router>
+        <el-menu-item index="/">Tasks</el-menu-item>
+        <el-menu-item index="/lists">Lists</el-menu-item>
+        <el-menu-item index="/tags">Tags</el-menu-item>
+        <el-menu-item index="/habits">Habits</el-menu-item>
+        <el-menu-item index="/pomodoro">Pomodoro</el-menu-item>
+        <el-menu-item index="/stats">Stats</el-menu-item>
+        <el-menu-item index="/smart-lists">Smart Lists</el-menu-item>
+      </el-menu>
+    </el-aside>
+    <el-main class="main">
+      <RouterView />
+    </el-main>
+  </el-container>
 </template>
 
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { RouterView } from 'vue-router'
+import { useWsRouter } from '@/stores/wsRouter'
+import { useSyncStore } from '@/stores/sync'
+import { useAuthStore } from '@/stores/auth'
+
+onMounted(() => {
+  const router = useWsRouter()
+  router.installDefaults()
+
+  const sync = useSyncStore()
+  sync.restoreFromStorage()
+
+  const auth = useAuthStore()
+  if (auth.accessToken) sync.initWs()
+})
+</script>
+
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+.app-shell {
+  min-height: 100vh;
 }
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.aside {
+  border-right: 1px solid var(--el-border-color);
+  padding: 12px;
 }
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+.brand {
+  font-weight: 700;
+  font-size: 18px;
+  margin: 8px 8px 16px;
 }
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.main {
+  padding: 16px;
 }
 </style>

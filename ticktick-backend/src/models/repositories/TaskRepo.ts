@@ -93,12 +93,12 @@ export const TaskRepo = {
 
     if (rule.due === 'today') q.andWhere('due_at', '>=', isoStart).andWhere('due_at', '<=', isoEnd)
     if (rule.due === 'overdue') {
-      q.andWhereNotNull('due_at').andWhere('due_at', '<', isoStart).andWhere('is_completed', '=', 0)
+      q.whereNotNull('due_at').andWhere('due_at', '<', isoStart).andWhere('is_completed', '=', 0)
     }
-    if (rule.due === 'none') q.andWhereNull('due_at')
+    if (rule.due === 'none') q.whereNull('due_at')
     if (rule.due === 'next7') {
       const end = new Date(now.getTime() + 7 * 86400000).toISOString()
-      q.andWhereNotNull('due_at').andWhere('due_at', '>=', isoStart).andWhere('due_at', '<=', end)
+      q.whereNotNull('due_at').andWhere('due_at', '>=', isoStart).andWhere('due_at', '<=', end)
     }
 
     if (typeof rule.priorityGte === 'number') q.andWhere('priority', '>=', rule.priorityGte)

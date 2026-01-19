@@ -1,35 +1,65 @@
 @import './base.css';
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --tt-red: #ff4d4f;
+  --tt-red-deep: #e84749;
+  --tt-orange: #ff8a3d;
+  --tt-yellow: #ffcc4d;
+  --tt-green: #2fbf71;
+  --tt-blue: #3b82f6;
+  --tt-slate-50: #f8fafc;
+  --tt-slate-100: #f1f5f9;
+  --tt-slate-200: #e2e8f0;
+  --tt-slate-500: #64748b;
+  --tt-slate-700: #334155;
+  --tt-slate-900: #0f172a;
+  --tt-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+  --tt-radius-lg: 16px;
+  --tt-radius-md: 12px;
+  --tt-radius-sm: 10px;
+
+  --el-color-primary: var(--tt-red);
+  --el-color-primary-light-3: #ff7a7b;
+  --el-color-primary-light-5: #ff9fa0;
+  --el-color-primary-light-7: #ffc5c6;
+  --el-color-primary-light-8: #ffd7d7;
+  --el-color-primary-light-9: #ffe9e9;
+  --el-border-radius-base: var(--tt-radius-sm);
+  --el-border-radius-round: 999px;
+  --el-font-family: 'Manrope', 'Segoe UI', sans-serif;
+  --el-text-color-regular: var(--tt-slate-700);
+  --el-text-color-primary: var(--tt-slate-900);
+  --el-text-color-secondary: var(--tt-slate-500);
+  --el-border-color: var(--tt-slate-200);
+  --el-bg-color: #ffffff;
+  --el-bg-color-page: var(--tt-slate-50);
+}
+
+body {
+  background: var(--tt-slate-100);
+  font-family: 'Manrope', 'Segoe UI', sans-serif;
+}
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+  min-height: 100vh;
+  color: var(--el-text-color-primary);
+  background: var(--tt-slate-100);
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+.tt-card {
+  border-radius: var(--tt-radius-md);
+  border: 1px solid var(--el-border-color);
+  background: #fff;
+  box-shadow: var(--tt-shadow);
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+.tt-section-title {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--tt-slate-900);
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+.tt-subtle {
+  color: var(--tt-slate-500);
 }

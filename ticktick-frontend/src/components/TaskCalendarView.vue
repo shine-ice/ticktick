@@ -5,7 +5,7 @@
         <div class="cell">
           <div class="day">{{ data.day }}</div>
           <div class="badges">
-            <el-tag v-if="countByDate(data.date)" size="small">{{ countByDate(data.date) }}</el-tag>
+            <span v-if="countByDate(data.date)" class="badge">{{ countByDate(data.date) }}</span>
           </div>
         </div>
       </template>
@@ -18,8 +18,8 @@
       <el-empty v-if="filtered.length === 0" description="No tasks" />
       <div v-else class="rows">
         <div v-for="task in filtered" :key="task.id" class="task-row">
-          <span>{{ task.title }}</span>
-          <el-tag v-if="task.priority" size="small">P{{ task.priority }}</el-tag>
+          <span class="task-title">{{ task.title }}</span>
+          <el-tag v-if="task.priority" size="small" type="danger">P{{ task.priority }}</el-tag>
         </div>
       </div>
     </div>
@@ -57,6 +57,17 @@ function countByDate(date: Date) {
   flex-direction: column;
   gap: 4px;
 }
+.badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 600;
+}
 .task-list .title {
   font-weight: 600;
   margin-bottom: 8px;
@@ -66,6 +77,9 @@ function countByDate(date: Date) {
   justify-content: space-between;
   padding: 6px 0;
   border-bottom: 1px solid var(--el-border-color-light);
+}
+.task-title {
+  font-weight: 500;
 }
 .rows .task-row:last-child {
   border-bottom: none;

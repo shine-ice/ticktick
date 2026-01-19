@@ -1,25 +1,25 @@
 <template>
   <div class="smart-task-input">
-    <el-input
-      v-model="text"
-      :placeholder="placeholder"
-      clearable
-      @input="onInput"
-      @keyup.enter="onEnter"
-    />
+    <div class="input-row">
+      <el-input
+        v-model="text"
+        :placeholder="placeholder"
+        clearable
+        @input="onInput"
+        @keyup.enter="onEnter"
+      />
+      <el-button type="primary" :loading="pending" :disabled="!parsed" @click="onSubmit">Add</el-button>
+    </div>
 
     <div class="preview" v-if="parsed">
       <div class="title">{{ parsed.title }}</div>
       <div class="meta">
-        <span v-if="parsed.dueAt">Due: {{ parsed.dueAt }}</span>
-        <span v-if="parsed.priority">Priority: {{ parsed.priority }}</span>
-        <span v-if="parsed.tagNames?.length">Tags: {{ parsed.tagNames.join(', ') }}</span>
+        <el-tag v-if="parsed.dueAt" size="small" effect="plain">Due {{ parsed.dueAt }}</el-tag>
+        <el-tag v-if="parsed.priority" size="small" type="danger">P{{ parsed.priority }}</el-tag>
+        <el-tag v-for="tag in parsed.tagNames || []" :key="tag" size="small" type="info" effect="plain">
+          #{{ tag }}
+        </el-tag>
       </div>
-    </div>
-
-    <div class="actions">
-      <el-button type="primary" :disabled="!parsed" @click="onSubmit">Add Task</el-button>
-      <el-button v-if="parsed" @click="clear">Clear</el-button>
     </div>
   </div>
 </template>
@@ -87,11 +87,19 @@ function clear() {
   flex-direction: column;
   gap: 12px;
 }
+.input-row {
+  display: flex;
+  gap: 10px;
+}
 .preview {
   padding: 10px 12px;
   border: 1px solid var(--el-border-color);
   border-radius: 8px;
   background: var(--el-bg-color-page);
+}
+.title {
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 .meta {
   font-size: 12px;
@@ -99,9 +107,5 @@ function clear() {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-}
-.actions {
-  display: flex;
-  gap: 8px;
 }
 </style>

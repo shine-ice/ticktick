@@ -1,12 +1,15 @@
 <template>
   <el-card class="pomodoro">
-    <div class="time">{{ formatted }}</div>
+    <div class="ring" :class="mode">
+      <div class="time">{{ formatted }}</div>
+      <div class="mode">{{ mode === 'focus' ? 'Focus' : 'Break' }}</div>
+    </div>
     <div class="controls">
       <el-button type="primary" @click="toggle">{{ running ? 'Pause' : 'Start' }}</el-button>
       <el-button @click="reset">Reset</el-button>
     </div>
     <div class="meta">
-      <span>Mode: {{ mode }}</span>
+      <span>{{ running ? 'In progress' : 'Ready when you are' }}</span>
     </div>
   </el-card>
 </template>
@@ -90,9 +93,28 @@ onBeforeUnmount(() => stop())
   gap: 12px;
   justify-items: center;
 }
+.ring {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  border: 10px solid var(--el-color-primary-light-8);
+  display: grid;
+  place-items: center;
+  background: #fff;
+  text-align: center;
+  gap: 6px;
+  padding: 12px;
+}
+.ring.break {
+  border-color: #dbeafe;
+}
 .time {
-  font-size: 48px;
-  font-weight: 700;
+  font-size: 42px;
+  font-weight: 800;
+}
+.mode {
+  font-size: 14px;
+  color: var(--el-text-color-secondary);
 }
 .controls {
   display: flex;

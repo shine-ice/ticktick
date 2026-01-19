@@ -1,11 +1,16 @@
 <template>
-  <el-drawer :model-value="modelValue" title="Edit Task" size="420px" @close="close">
-    <el-form label-position="top">
+  <el-drawer :model-value="modelValue" title="Task details" size="460px" @close="close">
+    <el-form label-position="top" class="drawer-form">
       <el-form-item label="Title">
         <el-input v-model="draft.title" />
       </el-form-item>
       <el-form-item label="Note">
         <el-input v-model="draft.note" type="textarea" :rows="3" />
+      </el-form-item>
+      <el-form-item label="List">
+        <el-select v-model="draft.listId" placeholder="Choose list">
+          <el-option v-for="list in lists" :key="list.id" :label="list.name" :value="list.id" />
+        </el-select>
       </el-form-item>
       <el-form-item label="Due date">
         <el-date-picker v-model="draft.dueAt" type="datetime" />
@@ -20,6 +25,9 @@
       </el-form-item>
       <el-form-item label="Tags">
         <TagPicker v-model="draft.tagIds" :tags="tags" />
+      </el-form-item>
+      <el-form-item label="Repeat">
+        <el-input v-model="draft.repeatRule" placeholder="Every week, every month..." />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -38,6 +46,7 @@ const props = defineProps<{
   modelValue: boolean
   task: Task | null
   tags: Tag[]
+  lists: { id: number; name: string }[]
 }>()
 
 const emit = defineEmits<{
@@ -50,7 +59,9 @@ const draft = reactive({
   note: '',
   dueAt: null as any,
   priority: 0,
-  tagIds: [] as number[]
+  tagIds: [] as number[],
+  listId: null as number | null,
+  repeatRule: ''
 })
 
 watch(
@@ -62,6 +73,8 @@ watch(
     draft.dueAt = task.due_at || null
     draft.priority = task.priority ?? 0
     draft.tagIds = Array.isArray(task.tagIds) ? [...task.tagIds] : []
+    draft.listId = task.list_id || null
+    draft.repeatRule = task.repeat_rule || ''
   },
   { immediate: true }
 )
@@ -76,8 +89,17 @@ function save() {
     note: draft.note,
     dueAt: draft.dueAt,
     priority: draft.priority,
-    tagIds: draft.tagIds
+    tagIds: draft.tagIds,
+    listId: draft.listId,
+    repeatRule: draft.repeatRule
   })
   close()
 }
 </script>
+
+<style scoped>
+.drawer-form {
+  display: grid;
+  gap: 6px;
+}
+</style>

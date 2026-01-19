@@ -1,29 +1,35 @@
 <template>
-  <el-card shadow="never">
-    <div class="toolbar">
-      <el-input v-model="name" placeholder="List name" style="width: 240px" />
-      <el-color-picker v-model="color" />
-      <el-button type="primary" @click="create">Create</el-button>
-      <el-button @click="refresh">Refresh</el-button>
-    </div>
+  <div class="lists-view">
+    <el-card class="tt-card">
+      <div class="header">
+        <div>
+          <div class="tt-section-title">Lists</div>
+          <div class="tt-subtle">Group tasks by project, area, or goal</div>
+        </div>
+        <div class="actions">
+          <el-input v-model="name" placeholder="New list name" class="name-input" />
+          <el-color-picker v-model="color" />
+          <el-button type="primary" @click="create">Create</el-button>
+          <el-button @click="refresh">Refresh</el-button>
+        </div>
+      </div>
+    </el-card>
 
-    <el-table :data="lists.items" style="width: 100%">
-      <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="name" label="Name" />
-      <el-table-column label="Color" width="140">
-        <template #default="{ row }">
-          <el-tag v-if="row.color" :style="{ background: row.color, borderColor: row.color, color: '#fff' }">
-            {{ row.color }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="Actions" width="220">
-        <template #default="{ row }">
-          <el-button size="small" @click="rename(row)">Rename</el-button>
-          <el-button size="small" type="danger" @click="remove(row)">Delete</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div class="list-grid">
+      <el-card v-for="list in lists.items" :key="list.id" class="tt-card list-item">
+        <div class="list-row">
+          <span class="list-dot" :style="{ background: list.color || '#fca5a5' }" />
+          <div class="list-info">
+            <div class="list-name">{{ list.name }}</div>
+            <div class="list-meta">{{ countFor(list.id) }} tasks</div>
+          </div>
+        </div>
+        <div class="list-actions">
+          <el-button size="small" text @click="rename(list)">Rename</el-button>
+          <el-button size="small" text type="danger" @click="remove(list)">Delete</el-button>
+        </div>
+      </el-card>
+    </div>
 
     <el-dialog v-model="renameVisible" title="Rename list" width="420px">
       <el-input v-model="renameText" />
@@ -32,17 +38,19 @@
         <el-button type="primary" @click="confirmRename">Save</el-button>
       </template>
     </el-dialog>
-  </el-card>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { ElMessageBox } from 'element-plus'
 import { useListsStore } from '@/stores/lists'
+import { useTasksStore } from '@/stores/tasks'
 
 const lists = useListsStore()
+const tasks = useTasksStore()
 const name = ref('')
-const color = ref<string | null>('#409EFF')
+const color = ref<string | null>('#ff4d4f')
 
 const renameVisible = ref(false)
 const renameId = ref<number | null>(null)
@@ -50,7 +58,14 @@ const renameText = ref('')
 
 onMounted(async () => {
   await lists.fetchAll()
+  if (!tasks.items.length) {
+    await tasks.fetchList(1, 100)
+  }
 })
+
+function countFor(listId: number) {
+  return tasks.items.filter((task) => task.list_id === listId && task.is_completed !== 1).length
+}
 
 async function refresh() {
   await lists.fetchAll()
@@ -82,10 +97,55 @@ async function remove(row: any) {
 </script>
 
 <style scoped>
-.toolbar {
+.lists-view {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.name-input {
+  width: 220px;
+}
+.list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.list-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.list-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.list-name {
+  font-weight: 600;
+}
+.list-meta {
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+}
+.list-actions {
   display: flex;
   gap: 8px;
-  margin-bottom: 12px;
-  align-items: center;
 }
 </style>

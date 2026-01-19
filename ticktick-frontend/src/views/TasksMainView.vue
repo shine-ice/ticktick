@@ -54,7 +54,7 @@
               <el-checkbox
                 :model-value="task.is_completed === 1"
                 class="task-check"
-                @change="(val) => toggleComplete(task, !!val)"
+                @change="(val: boolean) => toggleComplete(task, !!val)"
               />
               <div class="task-body">
                 <div
